@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="89b39e71-56af-40f8-9976-b5d40587d463" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/common/Logger.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/common/NetworkMessage.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/common/Node.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/distBuffer/DistributedSimBuffer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/distBuffer/DistributedSimBufferManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/distBuffer/DistributedSimBufferRouter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/distBuffer/EventList.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/server/ServerNode.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/io/github/stcksmsh/kdp/worker/WorkerNode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/Bag.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/Body.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/Collector.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/Field.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/G.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/TestG.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/kdp/simulation/components/Worker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/Event.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/Netlist.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimBuffer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimBufferLocal.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimComponent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimEndpoint.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/Simulator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimulatorMultithread.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimulatorOptimistic.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/rs/ac/bg/etf/sleep/simulation/SimulatorSinglethread.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2l85Rehs3HGp2Ly1cJYogexkNHf" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/stcksmsh/Programming/Github/13S113KDP&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="89b39e71-56af-40f8-9976-b5d40587d463" name="Changes" comment="" />
+      <created>1724548856004</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1724548856004</updated>
+      <workItem from="1724548857017" duration="8000" />
+      <workItem from="1724548870049" duration="11000" />
+      <workItem from="1724548883200" duration="10000" />
+      <workItem from="1724548899438" duration="3202000" />
+      <workItem from="1724610762789" duration="7134000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

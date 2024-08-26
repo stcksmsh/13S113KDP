@@ -1,4 +1,4 @@
-package rs.ac.bg.etf.kdp.simulation.components;
+package rs.ac.bg.etf.kdp.simulation;
 
 import java.io.*;
 import java.util.*;
@@ -14,8 +14,8 @@ public class TestG {
 			String connections = args[1];
 			String componentsDst = args[2];
 			Netlist<Object> netlist = loadNetlist(components, connections);
-			// Simulator<Object> simulator = new SimulatorSinglethread<Object>(1);
-			Simulator<Object> simulator = new SimulatorOptimistic<Object>(1);
+			 Simulator<Object> simulator = new SimulatorSinglethread<Object>(1);
+//			Simulator<Serializable> simulator = new SimulatorOptimistic<Object>(1);
 
 			simulator.setNetlist(netlist);
 			simulator.init();

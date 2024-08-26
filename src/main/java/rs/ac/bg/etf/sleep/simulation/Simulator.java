@@ -29,6 +29,7 @@ public abstract class Simulator<V> {
 		iteration = 0;
 		netlist = new Netlist<V>();
 		iterationTime = 0;
+		this.id = id;
 	}
 
 	public void init() {

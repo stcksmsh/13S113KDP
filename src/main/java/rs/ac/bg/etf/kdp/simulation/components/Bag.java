@@ -100,6 +100,7 @@ public class Bag extends G {
 		result[i++] = "" + lTime;
 		result[i++] = "" + dt;
 		for (Body b : bodies) {
+			result[i++] = "" + b.id; /// This should be here right? Changed from their version
 			result[i++] = "" + b.m;
 			result[i++] = "" + b.x;
 			result[i++] = "" + b.y;
