@@ -12,6 +12,7 @@ public class Logger {
     private static final Object lock = new Object();
 
     public enum LogLevel {
+        DEBUG,
         INFO,
         WARNING,
         ERROR
@@ -19,7 +20,7 @@ public class Logger {
 
     private Logger(String filename) {
         try {
-            writer = new PrintWriter(new FileWriter(filename, true), true);
+            writer = new PrintWriter(new FileWriter(filename, false), true);
         } catch (IOException e) {
             System.err.println("Failed to initialize logger: " + e.getMessage());
             e.printStackTrace();
@@ -40,6 +41,14 @@ public class Logger {
     /// Return calling class name
     public static String getTAG() {
         return Thread.currentThread().getStackTrace()[2].getClassName();
+    }
+
+    public void D (String message) {
+        log(message, "unknown", LogLevel.DEBUG);
+    }
+
+    public void D (String TAG, String message ) {
+        log(message, TAG, LogLevel.DEBUG);
     }
 
     public void I (String message) {

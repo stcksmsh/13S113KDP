@@ -1,0 +1,12 @@
+FROM openjdk:21-jdk-slim
+
+COPY build/libs/server-node.jar /app/server-node.jar
+COPY docker/entrypoint.sh /app/entrypoint.sh
+
+WORKDIR /app
+
+EXPOSE 8080
+
+ENV JAR_FILE=server-node.jar
+
+ENTRYPOINT ["./entrypoint.sh"]

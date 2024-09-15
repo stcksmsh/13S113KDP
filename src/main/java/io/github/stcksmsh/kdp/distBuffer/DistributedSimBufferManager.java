@@ -5,11 +5,10 @@ import io.github.stcksmsh.kdp.common.NetworkMessage;
 import rs.ac.bg.etf.sleep.simulation.Event;
 import rs.ac.bg.etf.sleep.simulation.Netlist;
 
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Part of the distributed buffer system
@@ -22,87 +21,37 @@ import java.util.Map;
  */
 public class DistributedSimBufferManager<T> {
     private final Logger logger;
-    private final Socket routerSocket;
     private final String TAG;
-    private ObjectOutputStream routerOutput;
-    private ObjectInputStream routerInput;
-    private Map<String, DistributedSimBuffer<T>> buffers;
-    private Map<String, Netlist<T>> netLists;
-    private boolean running;
+    private final Map<String, DistributedSimBuffer<T>> buffers;
+    private final Map<String, Netlist<T>> netLists;
+    private final Consumer<NetworkMessage.EventListMessage<T>> sendEvents;
 
     /**
      * Initialises the manager
-     * @param routerSocket The socket to the router
+     *
      * @param logger The logger to use
      */
-    public DistributedSimBufferManager(Socket routerSocket, Logger logger) {
-        this.routerSocket = routerSocket;
+    public DistributedSimBufferManager(Logger logger, Consumer<NetworkMessage.EventListMessage<T>> sendEvents) {
         this.logger = logger;
         this.TAG = Logger.getTAG();
-        this.buffers = Map.of();
-        this.netLists = Map.of();
+        this.sendEvents = sendEvents;
+        this.buffers = new HashMap<>();
+        this.netLists = new HashMap<>();
     }
 
-    public void start(){
-        try {
-            routerOutput = new ObjectOutputStream(routerSocket.getOutputStream());
-            routerInput = new ObjectInputStream(routerSocket.getInputStream());
-        } catch (Exception e) {
-            logger.E(TAG, "Failed to open streams to router");
-            logger.E(e);
+    /**
+     * Used by the worker node to give events to the manager
+     *
+     * @param jobId The ID of the job
+     * @param events The events to give
+     */
+    public void giveEvents(String jobId, List<Event<T>> events) {
+        DistributedSimBuffer<T> buffer = buffers.get(jobId);
+        if (buffer == null) {
+            logger.E(TAG, "No buffer for job " + jobId);
             return;
         }
-        running = true;
-        new Thread(this::run).start();
-    }
-
-    public void stop() {
-        running = false;
-        try {
-            routerOutput.close();
-            routerInput.close();
-            routerSocket.close();
-        } catch (Exception e) {
-            logger.E(TAG, "Failed to close streams to router");
-            logger.E(e);
-        }
-    }
-
-    private void run() {
-        while (running) {
-            try {
-                EventList<T> events = (EventList<T>) routerInput.readObject();
-                String jobId = events.getJobId();
-                DistributedSimBuffer<T> buffer = buffers.get(jobId);
-                if(buffer == null) {
-                    logger.E(TAG, STR."Received events for unknown job id: \{jobId}");
-                    continue;
-                }
-                buffers.get(jobId).receiveEvents(events.getEvents());
-            } catch (Exception e) {
-                logger.E(TAG, "Failed to read from router");
-                logger.E(e);
-            }
-        }
-    }
-
-    private void sendEvents(String jobId, List<Event<T>> events) {
-        /// First see if any of the events are for local buffers
-        Netlist<T> netList = netLists.get(jobId);
-        /// Remove events that are for components that are in the NetList
-        events.removeIf(event -> netList.getComponent(event.getDstID()) != null);
-        /// If there are no events left, return
-        if (events.isEmpty()) return;
-        /// Then send the rest to the router
-        try {
-            EventList<T> eventList = new EventList<>(jobId, events);
-            routerOutput.writeObject(
-                    new NetworkMessage.EventListMessage<>(eventList)
-            );
-        } catch (Exception e) {
-            logger.E(TAG, "Failed to send events to router");
-            logger.E(e);
-        }
+        buffer.giveEvents(events);
     }
 
     /**
@@ -111,9 +60,11 @@ public class DistributedSimBufferManager<T> {
      * @param netlist The netlist to simulate
      * @return The buffer for the job
      */
-    DistributedSimBuffer<T> createJob(String jobId, Netlist<T> netlist) {
+    public DistributedSimBuffer<T> newJob(String jobId, Netlist<T> netlist) {
         netLists.put(jobId, netlist);
-        DistributedSimBuffer<T> buffer = new DistributedSimBuffer<T>(events -> sendEvents(jobId, events));
+        DistributedSimBuffer<T> buffer = new DistributedSimBuffer<>(events -> sendEvents.accept(new NetworkMessage.EventListMessage<>(
+                new EventList<>(jobId, events)
+        )));
         buffers.put(jobId, buffer);
         return buffer;
     }

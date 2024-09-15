@@ -21,7 +21,6 @@ public class TestG {
 			simulator.init();
 			while (simulator.getlTime() < 100) {
 				simulator.execute();
-				System.out.println("Time:" + simulator.getlTime());
 			}
 			storeNetList(netlist, componentsDst);
 		} catch (Exception e) {

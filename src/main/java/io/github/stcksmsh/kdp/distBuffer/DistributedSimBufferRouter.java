@@ -3,11 +3,11 @@ package io.github.stcksmsh.kdp.distBuffer;
 import io.github.stcksmsh.kdp.common.Logger;
 import io.github.stcksmsh.kdp.common.NetworkMessage;
 
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.util.Map;
 import java.util.List;
-
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Part of the distributed buffer system
  * Manages the routing of messages between buffer instances
@@ -23,21 +23,23 @@ public class DistributedSimBufferRouter<T>{
     /**
      * Maps manager ids to their sockets
      */
-    private Map<String, ObjectOutputStream> managerStreams;
+    private final Map<String, Consumer<NetworkMessage.EventListMessage<T>>> managerStreams;
     /**
      * Maps manager ids to the jobs they manage
      */
-    private Map<String, List<String>> managerJobs;
+    public Map<String, List<String>> managerJobs;
     /**
      * Maps job ids to the manager that manages them
      */
-    private Map<String, List<String>> jobManagers;
+    private final Map<String, List<String>> jobManagers;
 
 
     public DistributedSimBufferRouter(Logger logger) {
         this.logger = logger;
         this.TAG = Logger.getTAG();
-        this.managerStreams = Map.of();
+        this.managerStreams = new ConcurrentHashMap<>();
+        this.managerJobs = new ConcurrentHashMap<>();
+        this.jobManagers = new ConcurrentHashMap<>();
     }
 
     /**
@@ -45,9 +47,10 @@ public class DistributedSimBufferRouter<T>{
      * @param managerId The ID of the manager
      * @param managerStream The output stream to the manager
      */
-    public void addManager(String managerId, ObjectOutputStream managerStream) {
+    public void addManager(String managerId, Consumer<NetworkMessage.EventListMessage<T>> managerStream) {
+        logger.D(TAG, "Adding manager '" + managerId + "'");
         managerStreams.put(managerId, managerStream);
-        managerJobs.put(managerId, List.of());
+        managerJobs.put(managerId, new CopyOnWriteArrayList<>());
     }
 
     /**
@@ -56,7 +59,8 @@ public class DistributedSimBufferRouter<T>{
      * @param managerIds The IDs of the managers that manage the job
      */
     public void addJob(String jobId, List<String> managerIds) {
-        jobManagers.put(jobId, managerIds);
+        logger.D(TAG, "Adding job '" + jobId + "' with managers " + managerIds);
+        jobManagers.put(jobId, new CopyOnWriteArrayList<>(managerIds));
         for (String managerId : managerIds) {
             managerJobs.get(managerId).add(jobId);
         }
@@ -67,12 +71,17 @@ public class DistributedSimBufferRouter<T>{
      * @param message The message to handle
      */
     public void handleEventList(NetworkMessage.EventListMessage<T> message) {
+        logger.D(TAG, "Received event list for job '" + message.getEventList().getJobId() + "'");
         EventList<T> eventList = message.getEventList();
+        if(!jobManagers.containsKey(eventList.getJobId())){
+            logger.E(TAG, "Received event list for unknown job '" + eventList.getJobId() + "'");
+            return;
+        }
         for (String managerId : jobManagers.get(eventList.getJobId())) {
             try {
-                ObjectOutputStream managerStream = managerStreams.get(managerId);
+                Consumer<NetworkMessage.EventListMessage<T>> managerStream = managerStreams.get(managerId);
                 synchronized (managerStream) {
-                    managerStream.writeObject(message);
+                    managerStream.accept(message);
                 }
             } catch (Exception e) {
                 logger.E(TAG, "Failed to forward event list to manager");
