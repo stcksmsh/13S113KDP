@@ -17,13 +17,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @see DistributedSimBuffer
  * @see DistributedSimBufferManager
  */
-public class DistributedSimBufferRouter<T>{
+public class DistributedSimBufferRouter{
     private final Logger logger;
     private final String TAG;
     /**
      * Maps manager ids to their sockets
      */
-    private final Map<String, Consumer<NetworkMessage.EventListMessage<T>>> managerStreams;
+    private final Map<String, Consumer<NetworkMessage>> managerStreams;
     /**
      * Maps manager ids to the jobs they manage
      */
@@ -47,7 +47,7 @@ public class DistributedSimBufferRouter<T>{
      * @param managerId The ID of the manager
      * @param managerStream The output stream to the manager
      */
-    public void addManager(String managerId, Consumer<NetworkMessage.EventListMessage<T>> managerStream) {
+    public void addManager(String managerId, Consumer<NetworkMessage> managerStream) {
         logger.D(TAG, "Adding manager '" + managerId + "'");
         managerStreams.put(managerId, managerStream);
         managerJobs.put(managerId, new CopyOnWriteArrayList<>());
@@ -67,19 +67,41 @@ public class DistributedSimBufferRouter<T>{
     }
 
     /**
+     * Removes a job from the router
+     * @param jobId The ID of the job
+     */
+    public void removeJob(String jobId) {
+        logger.D(TAG, "Removing job '" + jobId + "'");
+        List<String> managers = jobManagers.get(jobId);
+        if(managers == null){
+            logger.E(TAG, "Tried to remove unknown job '" + jobId + "'");
+            return;
+        }
+        for (String managerId : managers) {
+            managerJobs.get(managerId).remove(jobId);
+        }
+        jobManagers.remove(jobId);
+    }
+
+    /**
      * Handles an event list message
      * @param message The message to handle
      */
-    public void handleEventList(NetworkMessage.EventListMessage<T> message) {
-        logger.D(TAG, "Received event list for job '" + message.getEventList().getJobId() + "'");
-        EventList<T> eventList = message.getEventList();
+    public void handleEventList(NetworkMessage message, String workerId) {
+        if(!(message instanceof NetworkMessage.EventListMessage)){
+            logger.E(TAG, "Received non-event list message");
+            return;
+        }
+        NetworkMessage.EventListMessage<Object> eventListMessage = (NetworkMessage.EventListMessage<Object>) message;
+        logger.D(TAG, "Received event list for job '" + eventListMessage.getEventList().getJobId() + "' from manager '" + workerId + "'");
+        EventList<Object> eventList = eventListMessage.getEventList();
         if(!jobManagers.containsKey(eventList.getJobId())){
             logger.E(TAG, "Received event list for unknown job '" + eventList.getJobId() + "'");
             return;
         }
         for (String managerId : jobManagers.get(eventList.getJobId())) {
             try {
-                Consumer<NetworkMessage.EventListMessage<T>> managerStream = managerStreams.get(managerId);
+                Consumer<NetworkMessage> managerStream = managerStreams.get(managerId);
                 synchronized (managerStream) {
                     managerStream.accept(message);
                 }

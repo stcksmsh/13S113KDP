@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 /**
  * Part of the distributed buffer system
  * Manages local buffer instances and communicates with the router
- * Only used on a worker node, it receives messages from the router and forwards them
+ * Only used on a worker node, it receives messages fromthe router and forwards them
  * to the local buffer instances which work the same job
  *
  * @see DistributedSimBuffer
@@ -46,6 +46,7 @@ public class DistributedSimBufferManager<T> {
      * @param events The events to give
      */
     public void giveEvents(String jobId, List<Event<T>> events) {
+        logger.I(TAG, "Received events for job " + jobId + " with size " + events.size());
         DistributedSimBuffer<T> buffer = buffers.get(jobId);
         if (buffer == null) {
             logger.E(TAG, "No buffer for job " + jobId);
@@ -61,6 +62,7 @@ public class DistributedSimBufferManager<T> {
      * @return The buffer for the job
      */
     public DistributedSimBuffer<T> newJob(String jobId, Netlist<T> netlist) {
+        logger.I(TAG, "Received now job with ID: " + jobId);
         netLists.put(jobId, netlist);
         DistributedSimBuffer<T> buffer = new DistributedSimBuffer<>(events -> sendEvents.accept(new NetworkMessage.EventListMessage<>(
                 new EventList<>(jobId, events)

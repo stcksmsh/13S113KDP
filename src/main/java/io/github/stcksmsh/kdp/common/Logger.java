@@ -87,6 +87,7 @@ public class Logger {
         synchronized (lock) {
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             writer.println(timestamp + " [" + level + "] [" + TAG + "] " + message);
+            writer.flush();
         }
     }
 

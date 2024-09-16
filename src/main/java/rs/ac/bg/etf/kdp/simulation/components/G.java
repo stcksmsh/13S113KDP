@@ -1,11 +1,12 @@
 package rs.ac.bg.etf.kdp.simulation.components;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import rs.ac.bg.etf.sleep.simulation.*;
 
-public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Field> {
+public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Field>, Serializable {
 	String name;
 	int id;
 	long lTime;

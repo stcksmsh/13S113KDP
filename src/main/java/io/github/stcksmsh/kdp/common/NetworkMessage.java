@@ -16,6 +16,7 @@ abstract public class NetworkMessage implements Serializable {
         SIGN_ON_RESPONSE,
         EVENT_LIST,
         NEW_JOB,
+        KILL_JOB,
         PING_REQUEST,
         PING_RESPONSE,
     }
@@ -106,6 +107,26 @@ abstract public class NetworkMessage implements Serializable {
         @Override
         public MessageType getType() {
             return MessageType.NEW_JOB;
+        }
+    }
+
+    public static class KillJobMessage extends NetworkMessage {
+        @Serial
+        private static final long serialVersionUID = 1L;
+
+        private final String jobId;
+
+        public KillJobMessage(String jobId) {
+            this.jobId = jobId;
+        }
+
+        public String getJobId() {
+            return jobId;
+        }
+
+        @Override
+        public MessageType getType() {
+            return MessageType.KILL_JOB;
         }
     }
 

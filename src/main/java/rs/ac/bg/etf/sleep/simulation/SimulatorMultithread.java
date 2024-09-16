@@ -12,7 +12,7 @@ public class SimulatorMultithread<T> extends Simulator<T> {
 
 	private boolean isTimeInTheRange(Event<T> m) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -24,6 +24,7 @@ public class SimulatorMultithread<T> extends Simulator<T> {
 			m = queue.getEvent();
 		}
 		lastEvent = m;
+		System.out.println("Simulator " + id + " executing event " + m.getDstID() + " " + m.getSrcID() + " " + m.getlTime());
 		lTime = lastEvent.lTime;
 		if (lastEvent.ok()) {
 			work(lastEvent);

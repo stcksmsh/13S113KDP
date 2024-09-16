@@ -115,13 +115,14 @@ public class WorkerNode extends Node {
     }
 
     private void sendEventList(NetworkMessage.EventListMessage eventListMessage){
+        logger.D(TAG, "Sending event list for job " + eventListMessage.getEventList().getJobId() + " to server node with size " + eventListMessage.getEventList().getEvents().size());
         serverNodeOut.writeObject(eventListMessage);
     }
 
     private void handleNewJob(NetworkMessage.NewJobMessage newJobMessage){
         logger.I(TAG, "Received new job with ID: " + newJobMessage.getJobId());
-        int jobId = Integer.parseInt(newJobMessage.getJobId());
         SimBuffer<Object> buffer = bufferManager.newJob(newJobMessage.getJobId(), newJobMessage.getNetList());
+
         createSimulation(buffer, newJobMessage.getNetList());
     }
 
@@ -129,11 +130,14 @@ public class WorkerNode extends Node {
         return bufferManager.newJob("0", new Netlist<Object>());
     }
 
+    private static int SIMULATOR_COUNT = 0;
     private void createSimulation(SimBuffer<Object> buffer, Netlist<Object> netList){
         new Thread(() -> {
-            Simulator<Object> simulator = new SimulatorMultithread<Object>(0);
+            Simulator<Object> simulator = new SimulatorMultithread<Object>(++SIMULATOR_COUNT);
             simulator.setQueue(buffer);
             simulator.setNetlist(netList);
+            logger.I(TAG, "Starting simulation");
+            simulator.init();
             simulator.simulate();
         }).start();
     }
@@ -145,30 +149,6 @@ public class WorkerNode extends Node {
     public static void main(String[] args) {
         WorkerNode workerNode = new WorkerNode(args[0], args[1], Integer.parseInt(args[2]));
         workerNode.start();
-        try{
-            Thread.sleep(RETRY_TIMEOUT);
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }
-        DistributedSimBuffer<Object> buffer = workerNode.makeBuffer();
-        while (true){
-            try {
-                Thread.sleep(2500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            List<Event<Object>> events = new ArrayList<>();
-            Random random = new Random();
-            for(int i = 0; i < random.nextInt(10); i++){
-                events.add(new Event(
-                        random.nextLong(),
-                        random.nextLong(),
-                        random.nextLong(),
-                        random.nextInt(),
-                        random.nextLong(),
-                        random.nextInt()));
-            }
-            buffer.putEvents(events);
-        }
+        System.out.println("Worker node started");
     }
 }

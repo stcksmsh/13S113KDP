@@ -1,8 +1,9 @@
 package rs.ac.bg.etf.sleep.simulation;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Netlist<V> {
+public class Netlist<V> implements Serializable {
 	HashMap<Long, SimComponent<V>> components;
 	HashMap<SimEndpoint, List<SimEndpoint>> connections;
 

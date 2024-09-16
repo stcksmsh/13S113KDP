@@ -1,6 +1,8 @@
 FROM openjdk:21-jdk-slim
 
 COPY build/libs/server-node.jar /app/server-node.jar
+COPY src/main/resources/komponente2-5000.txt /app/komponente2-5000.txt
+COPY src/main/resources/veze2-5000.txt /app/veze2-5000.txt
 COPY docker/entrypoint.sh /app/entrypoint.sh
 
 WORKDIR /app

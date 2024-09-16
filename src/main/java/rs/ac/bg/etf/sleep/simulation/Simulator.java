@@ -33,8 +33,7 @@ public abstract class Simulator<V> {
 	}
 
 	public void init() {
-		Long[] keys = netlist.getComponents().keySet().toArray(
-				new Long[netlist.getComponents().size()]);
+		Long[] keys = netlist.getComponents().keySet().toArray(Long[]::new);
 		for (Long key : keys) {
 			SimComponent<V> comp = netlist.getComponents().get(key);
 			List<Event<V>> events = comp.init();
@@ -71,6 +70,9 @@ public abstract class Simulator<V> {
 
 	public void work(Event<V> event) {
 		SimComponent<V> comp = netlist.getComponent(event.dstID);
+		if(comp == null) {
+			return;
+		}
 		List<Event<V>> events = comp.execute(event);
 		queue.putEvents(netlist.transform(events));
 		pastCreatedEvent.addAll(0, events);

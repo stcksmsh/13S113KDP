@@ -36,7 +36,7 @@ public class DistributedSimBuffer<T> implements SimBuffer<T> {
      * Used by the manager to "give" events to this buffer instance
      * Used instead of putEvent because we only need to give the event to this instance
      */
-    void giveEvents(Event<T> event) {
+    void giveEvent(Event<T> event) {
         queue.add(event);
     }
 
@@ -49,10 +49,9 @@ public class DistributedSimBuffer<T> implements SimBuffer<T> {
     }
 
     /**
-     * @see #giveEvents(Event)
+     * @see #giveEvent(Event)
      */
     void giveEvents(List<Event<T>> events){
-        System.out.println("Giving " + events.size() + " events to buffer");
         queue.addAll(events);
     }
 
@@ -64,6 +63,9 @@ public class DistributedSimBuffer<T> implements SimBuffer<T> {
 
     @Override
     public void putEvents(List<Event<T>> events) {
+        if(events.isEmpty()){
+            return;
+        }
         queue.addAll(events);
         sendEvents(events);
     }

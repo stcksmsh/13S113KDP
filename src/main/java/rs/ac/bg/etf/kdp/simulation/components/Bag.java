@@ -100,7 +100,6 @@ public class Bag extends G {
 		result[i++] = "" + lTime;
 		result[i++] = "" + dt;
 		for (Body b : bodies) {
-			result[i++] = "" + b.id; /// This should be here right? Changed from their version
 			result[i++] = "" + b.m;
 			result[i++] = "" + b.x;
 			result[i++] = "" + b.y;
@@ -121,7 +120,6 @@ public class Bag extends G {
 		lTime = Long.parseLong(args[6]);
 		dt = Long.parseLong(args[7]);
 		for (int j = 0, i = 8; j < m; j++) {
-		// for (int i = 8; i < args.length;) {
 			Body b = new Body();
 			b.id = Integer.parseInt(args[i++]);
 			b.m = Double.parseDouble(args[i++]);
