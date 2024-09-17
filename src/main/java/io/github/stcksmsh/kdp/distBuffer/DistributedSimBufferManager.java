@@ -5,6 +5,7 @@ import io.github.stcksmsh.kdp.common.NetworkMessage;
 import rs.ac.bg.etf.sleep.simulation.Event;
 import rs.ac.bg.etf.sleep.simulation.Netlist;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class DistributedSimBufferManager<T> {
     }
 
     /**
-     * Used by the worker node to give events to the manager
+     * Used by the manager node to give events to the buffers
      *
      * @param jobId The ID of the job
      * @param events The events to give
@@ -48,11 +49,25 @@ public class DistributedSimBufferManager<T> {
     public void giveEvents(String jobId, List<Event<T>> events) {
         logger.I(TAG, "Received events for job " + jobId + " with size " + events.size());
         DistributedSimBuffer<T> buffer = buffers.get(jobId);
+        Netlist<T> netlist = netLists.get(jobId);
         if (buffer == null) {
             logger.E(TAG, "No buffer for job " + jobId);
             return;
         }
-        buffer.giveEvents(events);
+        if (netlist == null) {
+            logger.E(TAG, "No netlist for job " + jobId);
+            return;
+        }
+        List<Event<T>> filteredEvents = new ArrayList<>();
+        for(Event<T> e : events){
+            long dstId = e.getDstID();
+            if(netlist.getComponent(dstId) == null){
+                logger.E(TAG, "Event destination " + dstId + " not found in netlist");
+                continue;
+            }
+            filteredEvents.add(e);
+        }
+        buffer.giveEvents(filteredEvents);
     }
 
     /**
@@ -62,13 +77,35 @@ public class DistributedSimBufferManager<T> {
      * @return The buffer for the job
      */
     public DistributedSimBuffer<T> newJob(String jobId, Netlist<T> netlist) {
-        logger.I(TAG, "Received now job with ID: " + jobId);
+        logger.I(TAG, "Received new job with ID: " + jobId);
         netLists.put(jobId, netlist);
-        DistributedSimBuffer<T> buffer = new DistributedSimBuffer<>(events -> sendEvents.accept(new NetworkMessage.EventListMessage<>(
-                new EventList<>(jobId, events)
-        )));
+        DistributedSimBuffer<T> buffer = new DistributedSimBuffer<>(events -> {
+            List<Event<T>> filteredEvents = new ArrayList<>();
+            for (Event<T> e : events) {
+                long srcId = e.getSrcID();
+                long dstId = e.getDstID();
+                if(netlist.getComponent(srcId) == null){
+                    logger.E(TAG, "Event source " + srcId + " not found in netlist");
+                    continue;
+                }
+                if(netlist.getComponent(dstId) == null){
+                    filteredEvents.add(e);
+                }
+            }
+            if(!filteredEvents.isEmpty()){
+                sendEvents.accept(new NetworkMessage.EventListMessage<>(
+                        new EventList<>(jobId, filteredEvents)
+                ));
+            }
+        });
         buffers.put(jobId, buffer);
         return buffer;
+    }
+
+    public void removeJob(String jobId) {
+        logger.I(TAG, "Removing job " + jobId);
+        buffers.remove(jobId);
+        netLists.remove(jobId);
     }
 
 }

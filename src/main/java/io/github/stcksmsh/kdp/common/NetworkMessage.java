@@ -91,9 +91,12 @@ abstract public class NetworkMessage implements Serializable {
 
         private final Netlist<T> Netlist;
 
-        public NewJobMessage(String jobId, Netlist<T> Netlist) {
+        private final long endTime;
+
+        public NewJobMessage(String jobId, Netlist<T> Netlist, long endTime) {
             this.jobId = jobId;
             this.Netlist = Netlist;
+            this.endTime = endTime;
         }
 
         public String getJobId() {
@@ -102,6 +105,10 @@ abstract public class NetworkMessage implements Serializable {
 
         public Netlist<T> getNetList() {
             return Netlist;
+        }
+
+        public long getEndTime() {
+            return endTime;
         }
 
         @Override

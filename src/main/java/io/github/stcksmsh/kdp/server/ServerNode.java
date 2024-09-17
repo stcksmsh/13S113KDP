@@ -9,12 +9,15 @@ import rs.ac.bg.etf.sleep.simulation.Netlist;
 import rs.ac.bg.etf.sleep.simulation.SimComponent;
 import rs.ac.bg.etf.sleep.simulation.SimEndpoint;
 
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -172,8 +175,13 @@ public class ServerNode extends Node {
                     logger.E(TAG, "Failed to send kill job message to worker: " + worker);
                 }
             }
+            router.removeJob(info.getFirst());
         }
         workers.remove(workerId);
+        Netlist netlist = jobs.get(workerId).netlist;
+        long endTime = jobs.get(workerId).endTime;
+        jobs.remove(workerId);
+        handleNewJob(netlist, endTime);
     }
 
     @Nullable
@@ -217,7 +225,7 @@ public class ServerNode extends Node {
                     workerNetlist.addConnection(src.componentID, src.componentPort, dst.componentID, dst.componentPort);
                 }
             }
-            NetworkMessage.NewJobMessage<Object> msg = new NetworkMessage.NewJobMessage<>(jobId, workerNetlist);
+            NetworkMessage.NewJobMessage<Object> msg = new NetworkMessage.NewJobMessage<>(jobId, workerNetlist, endTime);
             if (!workers.get(worker.getFirst()).workerOut.writeObject(msg)) {
                 logger.E(TAG, "Failed to send new job message to worker: " + worker.getFirst());
                 return null;
@@ -246,7 +254,7 @@ public class ServerNode extends Node {
         serverNode.start();
         System.out.println("Server started");
         int cnt = 0;
-        while (cnt < 2) {
+        while (cnt < 1) {
             cnt = serverNode.router.managerJobs.size();
             serverNode.logger.I(serverNode.TAG, "Connected managers: " + cnt);
             try {
@@ -262,12 +270,10 @@ public class ServerNode extends Node {
         }
         Netlist<Object> netlist = serverNode.loadNetlistFromFiles("komponente2-5000.txt", "veze2-5000.txt");
         System.out.println("Netlist loaded");
-        serverNode.handleNewJob(netlist, 10000);
+        serverNode.handleNewJob(netlist, 10);
         System.out.println("Job added");
         serverNode.logger.I(serverNode.TAG, "Job added");
     }
-
-
 
     @Nullable
     private Netlist<Object> loadNetlistFromFiles(String components,

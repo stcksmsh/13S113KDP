@@ -1,5 +1,6 @@
 package rs.ac.bg.etf.sleep.simulation;
 
+/// TODO: FIX THIS
 public class SimulatorMultithread<T> extends Simulator<T> {
 
 	public SimulatorMultithread(int id) {
@@ -24,10 +25,10 @@ public class SimulatorMultithread<T> extends Simulator<T> {
 			m = queue.getEvent();
 		}
 		lastEvent = m;
-		System.out.println("Simulator " + id + " executing event " + m.getDstID() + " " + m.getSrcID() + " " + m.getlTime());
 		lTime = lastEvent.lTime;
 		if (lastEvent.ok()) {
 			work(lastEvent);
 		}
+		end = lTime >= endTime;
 	}
 }

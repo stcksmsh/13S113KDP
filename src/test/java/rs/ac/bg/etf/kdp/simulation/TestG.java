@@ -1,6 +1,7 @@
 package rs.ac.bg.etf.kdp.simulation;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.*;
 
 import rs.ac.bg.etf.sleep.simulation.*;
@@ -10,16 +11,19 @@ public class TestG {
 	public static void main(String[] args) {
 		try {
 
-			String components = args[0];
-			String connections = args[1];
-			String componentsDst = args[2];
+			String components = "./src/test/resources/" + args[0];
+			String connections = "./src/test/resources/" + args[1];
+			String componentsDst ="./src/test/resources/" + args[2];
+
+			System.out.println(Paths.get("").toAbsolutePath().toString());
 			Netlist<Object> netlist = loadNetlist(components, connections);
 			 Simulator<Object> simulator = new SimulatorSinglethread<Object>(1);
-//			Simulator<Serializable> simulator = new SimulatorOptimistic<Object>(1);
+//			Simulator<Object> simulator = new SimulatorOptimistic<Object>(1);
+//			Simulator<Object> simulator = new SimulatorMultithread<Object>(1);
 
 			simulator.setNetlist(netlist);
 			simulator.init();
-			while (simulator.getlTime() < 100) {
+			while (simulator.getlTime() < 10) {
 				simulator.execute();
 			}
 			storeNetList(netlist, componentsDst);

@@ -100,6 +100,7 @@ public class DistributedSimBufferRouter{
             return;
         }
         for (String managerId : jobManagers.get(eventList.getJobId())) {
+            /// TODO: Only send event to the worker which has the component with the matching destId
             try {
                 Consumer<NetworkMessage> managerStream = managerStreams.get(managerId);
                 synchronized (managerStream) {

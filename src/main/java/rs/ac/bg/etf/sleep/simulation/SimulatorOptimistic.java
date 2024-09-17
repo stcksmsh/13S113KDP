@@ -2,7 +2,7 @@ package rs.ac.bg.etf.sleep.simulation;
 
 import java.io.*;
 
-public class SimulatorOptimistic<T extends Serializable> extends Simulator<T> {
+public class SimulatorOptimistic<T> extends Simulator<T> {
 
 	public SimulatorOptimistic(int id) {
 		super(id);

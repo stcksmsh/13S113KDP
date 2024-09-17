@@ -8,9 +8,8 @@ import rs.ac.bg.etf.sleep.simulation.*;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class WorkerNode extends Node {
     private final String TAG;
@@ -20,6 +19,8 @@ public class WorkerNode extends Node {
     private SynchronizedObjectOutputStream serverNodeOut = null;
     private SynchronisedObjectInputStream serverNodeIn = null;
     private final DistributedSimBufferManager<Object> bufferManager;
+    private final Map<String, Thread> simulators = new ConcurrentHashMap<>();
+
 
     public WorkerNode(String logFilename, String serverNodeAddress, int serverNodePort) {
         super(logFilename);
@@ -106,6 +107,11 @@ public class WorkerNode extends Node {
                     logger.D(TAG, "Received ping request from server node");
                     serverNodeOut.writeObject(new NetworkMessage.PingResponse());
                 }
+                case KILL_JOB -> {
+                    NetworkMessage.KillJobMessage killJobMessage = (NetworkMessage.KillJobMessage) message;
+                    logger.D(TAG, "Received kill job request for job " + killJobMessage.getJobId() + " from server node");
+                    handleKillJob(killJobMessage);
+                }
                 default -> {
                     logger.W(TAG, "Received unexpected message type '" + message.getType() + "' from server node");
                 }
@@ -119,33 +125,51 @@ public class WorkerNode extends Node {
         serverNodeOut.writeObject(eventListMessage);
     }
 
+    private static int SIMULATOR_COUNT = 0;
     private void handleNewJob(NetworkMessage.NewJobMessage newJobMessage){
         logger.I(TAG, "Received new job with ID: " + newJobMessage.getJobId());
         SimBuffer<Object> buffer = bufferManager.newJob(newJobMessage.getJobId(), newJobMessage.getNetList());
 
-        createSimulation(buffer, newJobMessage.getNetList());
-    }
-
-    private DistributedSimBuffer<Object> makeBuffer(){
-        return bufferManager.newJob("0", new Netlist<Object>());
-    }
-
-    private static int SIMULATOR_COUNT = 0;
-    private void createSimulation(SimBuffer<Object> buffer, Netlist<Object> netList){
-        new Thread(() -> {
+        Thread simulatorThread = new Thread(() -> {
             Simulator<Object> simulator = new SimulatorMultithread<Object>(++SIMULATOR_COUNT);
+//            Simulator<Object> simulator = new SimulatorSinglethread<>(++SIMULATOR_COUNT);
             simulator.setQueue(buffer);
-            simulator.setNetlist(netList);
+            simulator.setNetlist(newJobMessage.getNetList());
             logger.I(TAG, "Starting simulation");
+            simulator.setEndTime(newJobMessage.getEndTime());
             simulator.init();
             simulator.simulate();
-        }).start();
+            logger.I(TAG, "Simulation finished");
+            for (SimComponent<Object> c : simulator.getNetlist().getComponents().values()) {
+                String[] context = c.getState();
+                String contextString = "";
+                for (String s : context) {
+                    contextString += s + " ";
+                }
+                contextString = contextString.trim();
+                System.out.println(contextString);
+            }
+        });
+        simulators.put(newJobMessage.getJobId(), simulatorThread);
+        simulatorThread.start();
     }
 
     private void handleEventList(NetworkMessage.EventListMessage eventListMessage) {
         bufferManager.giveEvents(eventListMessage.getEventList().getJobId(), eventListMessage.getEventList().getEvents());
     }
-    
+
+    private void handleKillJob(NetworkMessage.KillJobMessage killJobMessage){
+        logger.D(TAG, "Received kill job request for job " + killJobMessage.getJobId());
+        Thread simulatorThread = simulators.get(killJobMessage.getJobId());
+        if(simulatorThread != null){
+            simulatorThread.interrupt();
+            simulators.remove(killJobMessage.getJobId());
+            bufferManager.removeJob(killJobMessage.getJobId());
+        }else{
+            logger.W(TAG, "Received kill job request for job " + killJobMessage.getJobId() + " but no such job is running");
+        }
+    }
+
     public static void main(String[] args) {
         WorkerNode workerNode = new WorkerNode(args[0], args[1], Integer.parseInt(args[2]));
         workerNode.start();

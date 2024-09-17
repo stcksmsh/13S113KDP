@@ -9,6 +9,8 @@ public abstract class Simulator<V> {
 	boolean end;
 	long lTime;
 
+	long endTime;
+
 	Netlist<V> netlist;
 	SimBuffer<V> queue;
 	List<Event<V>> pastReceivedEvent;
@@ -30,6 +32,7 @@ public abstract class Simulator<V> {
 		netlist = new Netlist<V>();
 		iterationTime = 0;
 		this.id = id;
+		this.endTime = Long.MAX_VALUE;
 	}
 
 	public void init() {
@@ -113,6 +116,14 @@ public abstract class Simulator<V> {
 
 	public void setlTime(long lTime) {
 		this.lTime = lTime;
+	}
+
+	public long getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
 	}
 
 	public Netlist<V> getNetlist() {
